@@ -45,7 +45,8 @@ int smooth(int array[], int len) {
 }
 
 int getSensorLevel(const int sensor_pin) {
-  // Return the median reading from the light sensor
+  // Return the median reading from SENSOR_SAMPLE_COUNT samples of the analog sensor
+  // at sensor_pin
   int samples[SENSOR_SAMPLE_COUNT];
   for (int sample = 0; sample < SENSOR_SAMPLE_COUNT; sample++) {
     samples[sample] = analogRead(sensor_pin);
@@ -68,15 +69,23 @@ int scaleToDisplay(const int raw_value) {
 }
 
 void setup() {
+  pinMode(R_SENSOR_PIN, INPUT);
+  pinMode(L_SENSOR_PIN, INPUT);
   microbit.begin();
+  
   microbit.fillScreen(LED_ON);
-  delay(500);
-  microbit.fillScreen(LED_OFF);
+  delay(1000);
   displayBar(0,1);
+  delay(500);
   displayBar(1,2);
+  delay(500);
   displayBar(2,3);
+  delay(500);
   displayBar(3,4);
+  delay(500);
   displayBar(4,5);
+  delay(1000);
+  microbit.fillScreen(LED_OFF);
 }
 
 void displayBar(const int column, const int value) {
@@ -85,5 +94,4 @@ void displayBar(const int column, const int value) {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 }
