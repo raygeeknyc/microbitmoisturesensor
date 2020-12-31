@@ -1,2 +1,3 @@
 # microbitmoisturesensor
-A 2 sensor micro:bit (v1,2) moisture display
+Displays the value of 2 analog sensors (using Sparkfun soil moisture sensors)
+Tracks low and high values per boot
