@@ -1,6 +1,7 @@
 /**
  * 
  * 2020 by Raymond Blum <raygeeknyc@gmail.com>.
+ * GPL license V3 and later
  */
 // define _DEBUG for serial output
 #define _NODEBUG
