@@ -4,7 +4,7 @@
  * GPL license V3 and later
  */
 // define _DEBUG for serial output
-#define _NODEBUG
+#define _DEBUG
 
 #include <Adafruit_Microbit.h>
 
@@ -15,8 +15,12 @@
 #define BUTTON_B_PIN 11  
 
 // These are set through observation of driest and wettest conditions
-#define SENSOR_MAX 800
-#define SENSOR_MIN 50
+#define SENSOR_MAX 820
+#define SENSOR_MIN 0
+
+#define DISPLAY_TIERS 5
+// The range of sensor values isn't evenly distributed: the higher values have lower granularity than the lower values
+const int SENSOR_TIER_RANGES[DISPLAY_TIERS] = {300, 200, 170, 100, 50};   // These should sum to approx (SENSOR_MAX - SENSOR_MIN) 
 
 const int SENSOR_RAW_RANGE = SENSOR_MAX + 1;
 const int SENSOR_RANGE = SENSOR_MAX - SENSOR_MIN + 1;
@@ -26,8 +30,6 @@ const float SENSOR_SCALE_FACTOR = (float)SENSOR_RANGE / SENSOR_RAW_RANGE;
 #define SAMPLE_POLLING_DELAY_MS 100
 
 #define DISPLAY_DELAY_MS 2000
-
-#define DISPLAY_TIERS 5
 
 // There's some language issues with using min and max functions - this is an easy workaround
 inline int min_i(int a,int b) {return ((a)<(b)?(a):(b)); }
@@ -68,21 +70,29 @@ int getSensorLevel(const int sensor_pin) {
 
 int scaleToDisplay(const int raw_value) {
   if (raw_value < SENSOR_MIN) {
-    return 0;
+    return 1;
   } else if (raw_value >= SENSOR_MAX) {
     return DISPLAY_TIERS;
   }
+  int display_tier = 0;
+  /* Linear scaling didn't match what we saw from the sensors
   int scaled_value = (float) raw_value * SENSOR_SCALE_FACTOR;
-  float value_pct = (float)scaled_value / SENSOR_RANGE;
+  int display_tier = min(int(value_pct * DISPLAY_TIERS)+1, DISPLAY_TIERS);
+  */
+  int tier_ceiling = 0;
+  for (int i=0; i<DISPLAY_TIERS; i++) {
+    tier_ceiling += SENSOR_TIER_RANGES[i];
+    if (raw_value < tier_ceiling) {
+      display_tier = i+1;
+      break;
+    }
+  }
   #ifdef _DEBUG
     Serial.print("value: ");
     Serial.print(raw_value);
-    Serial.print(" scaled value: ");
-    Serial.print(scaled_value);
-    Serial.print(" pct: ");
-    Serial.println(value_pct);
+    Serial.print(" tier: ");
+    Serial.print(display_tier);
   #endif
-  int display_tier = min(int(value_pct * DISPLAY_TIERS)+1, DISPLAY_TIERS);
 
   return display_tier;
 }
